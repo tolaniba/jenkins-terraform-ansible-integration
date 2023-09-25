@@ -1,16 +1,26 @@
 pipeline {
     agent any
     environment {
-        PATH = "${PATH}:${getTerraformPath()}"
+      PATH = "${PATH}:${getTerraformPath()}"
     }
     stages {
-        stage('Terraform-Init') {
+        stage('Terraform-Init & apply - dev') {
             steps {
+                sh returnStatus: true, script: 'terraform workspace new dev'
                 sh 'terraform init'
+                sh 'terraform apply --auto-approve'
+            }
+        }
+        stage('Terraform-Init & apply - prod') {
+            steps {
+                sh returnStatus: true, script: 'terraform workspace new prod'
+                sh 'terraform init'
+                sh 'terraform apply --auto-approve'
             }
         }
     }
 }
+
 def getTerraformPath(){
     def tfHome = tool name: 'terraform-server', type: 'terraform'
     return tfHome
